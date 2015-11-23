@@ -1,0 +1,7 @@
+######
+## Author: Irene Manotas
+######
+
+# Library to access RAPL registers: rapl_lib.c
+# Class to access RAPL from Java: Metric.java
+
