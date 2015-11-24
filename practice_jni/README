@@ -1,6 +1,5 @@
 Practice JNI with C++ library
 
-For MAC OS X:
 - make sure command-tools are installed: 
 $ xcode-select --install
 - compile java class: 
@@ -8,5 +7,15 @@ $javac EnergyMetric.java
 - generate C header: 
 $javah EnergyMetric
 - create source file: EnergyMetric.c
-- compile C library: (in MAC OS X use lib prefix and jnilib extension) 
-$ gcc -Wl, -I"/System/Library/Frameworks/JavaVM.framework/Headers/" -shared -o libEnergyMetric.jnilib EnergyMetric.c 
+- compile C library: 
+
+For MAC OS X:(in MAC OS X use lib prefix and jnilib extension) 
+$ gcc -Wl, -I"/System/Library/Frameworks/JavaVM.framework/Headers/" -shared -o libEnergyMetric.jnilib EnergyMetric.c
+
+For Unix/Ubuntu:
+$ gcc -c -fPIC -I"/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/" EnergyMetric.c
+$ gcc -shared -fPIC -o libEnergyMetric.so -I"/usr/lib/jvm/java-1.7.0-openjdk-amd64/include/" EnergyMetric.o
+
+- run java program:
+$ java -Djava.library.path=. EnergyMetric
+ 
