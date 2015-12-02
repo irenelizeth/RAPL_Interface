@@ -3,5 +3,7 @@
 ######
 
 # Library to access RAPL registers: rapl_lib.c
-# Class to access RAPL from Java: Metric.java
+# Class to access RAPL from Java: util.EnergyMetric.java
+# Credit for most of the MSR manipulation functions in C is for the creators of jRAPL.
+# jRAPL is available at: https://github.com/kliu20/jRAPL 
 

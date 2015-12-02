@@ -74,3 +74,41 @@ int get_core_num() {
         return sysconf(_SC_NPROCESSORS_CONF);
 	// sysconf (_SC_NPROCESSORS_ONLN) // number of processors online (available)
 }
+
+// RAPL MSR methods
+
+uint64_t extractBitField(uint64_t in_field, uint64_t width, uint64_t offset){
+	
+	uint64_t mask=~0;
+	uint64_t bit_mask;
+	uint64_t out_field;
+
+	if((offset+width)==64){
+		bit_mask = (mask<<offset);
+	}else{
+		bit_mask = (mask<<offset) ^ (mask<<(offset+width));
+	}
+
+	out_field = (in_field & bit_mask) >> offset;
+	return out_field;
+
+}
+
+/*Get units used for power, energy and time from register's data*/
+void get_msr_units(rapl_msr_unit *unit_obj, uint64_t data) {
+
+	uint64_t power_bit = extractBitField(data, 4, 0);
+        uint64_t energy_bit = extractBitField(data, 5, 8);
+        uint64_t time_bit = extractBitField(data, 4, 16);
+
+	printf("RAPL MSR UNITS:\n");
+	printf("power_bit: %" PRIu64 "\t energy_bit: %" PRIu64 "\t time_bit :%" PRIu64 "\n", power_bit, energy_bit, time_bit);
+
+        unit_obj->power = (1.0 / _2POW(power_bit));
+        unit_obj->energy = (1.0 / _2POW(energy_bit));
+        unit_obj->time = (1.0 / _2POW(time_bit));
+
+	printf("power units: %lf \t energy units: %lf \t time units : %lf \n", unit_obj->power, unit_obj->energy, unit_obj->time);
+}
+
+

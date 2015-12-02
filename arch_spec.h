@@ -17,6 +17,10 @@
                         "=d" (edx)      \
                         : "0" (eax), "2" (ecx))
 
+#define _2POW(num)        \
+((num == 0) ? 1 : (2 << (num - 1)))
+
+
 // APIC ID is a unique ID assigned to each logical processor in an Intel 64 or IA-32 platform
 typedef struct APIC_ID_t {
         uint64_t smt_id;
@@ -40,5 +44,16 @@ extern uint64_t num_core_thread; //number of physical threads per core
 extern uint64_t num_pkg_thread; //number of physical threads per package (socket)
 extern uint64_t num_pkg_core; //number of cores per package (socket)
 extern uint64_t num_pkg; //number of packages for current machine
+
+// RAPL MSR Abstractions
+
+/*represent MSR_RAPL_POWER_UNIT register*/
+typedef struct rapl_msr_unit {
+        double power; // power units
+        double energy; // energy units
+        double time; // time units
+} rapl_msr_unit;
+
+extern rapl_msr_unit rapl_units;
 
 #endif

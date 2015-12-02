@@ -33,6 +33,14 @@ JNIEXPORT jlong JNICALL Java_util_EnergyMetric_read_1msr
 JNIEXPORT jint JNICALL Java_util_EnergyMetric_profileInit
   (JNIEnv *, jclass);
 
+/*
+ * Class:     util_EnergyMetric
+ * Method:    getRAPLEnergyStatus
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif
