@@ -13,12 +13,12 @@
 
 //RAPL registers
 
-#define MSR_RAPL_POWER_UNIT	0x606
+#define MSR_RAPL_POWER_UNIT	0x606 // units for power, energy and time
 
-#define MSR_PKG_ENERGY_STATUS	0x611
-#define MSR_PP0_ENERGY_STATUS	0x639
-#define MSR_PP1_ENERGY_STATUS	0x641
-#define MSR_DRAM_ENERGY_STATUS	0x619
+#define MSR_PKG_ENERGY_STATUS	0x611 // socket power plane
+#define MSR_PP0_ENERGY_STATUS	0x639 // core power plane - all cores on socket
+#define MSR_PP1_ENERGY_STATUS	0x641 // graphics power plane - gpu (client only)
+#define MSR_DRAM_ENERGY_STATUS	0x619 // dram power plane (server only)
 
 
 int *fd; // file descriptor
@@ -65,16 +65,6 @@ JNIEXPORT jlong JNICALL Java_util_EnergyMetric_read_1msr(JNIEnv *env, jclass cla
 
 }
 
-uint64_t read_msr(int fd, uint64_t msrId) {
-
-  uint64_t data = 0;
-
-  if ( pread(fd, &data, sizeof data, msrId) != sizeof data ) {
-    printf("pread error!\n");
-  }
-
-  return data;
-}
 
 JNIEXPORT jint JNICALL Java_util_EnergyMetric_profileInit(JNIEnv *env, jclass class){
 
@@ -129,83 +119,75 @@ JNIEXPORT jint JNICALL Java_util_EnergyMetric_profileInit(JNIEnv *env, jclass cl
 
 /*Get the values of the Energy Status RAPL MSR for all the domains available in the
 current architecture (e.g., PKG, PP0, PP1) */
-JNIEXPORT jstring JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv *env, jclass class){
+JNIEXPORT jdoubleArray JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv *env, jclass class){
 
-	jstring energy_info;
-	char *energy_values;
 	double result = 0.0;
+	jdouble energy_val[num_pkg*4];
+
 	// Energy Domains
 	double package[num_pkg];	// entire socket
 	double pp0[num_pkg];		// power plane 0 (processor cores)
 	double pp1[num_pkg];		// power plane 1 (client: uncore devices e.g., gpu)
 	double dram[num_pkg];		// dram (server)
 
-	long dram_num = 0L;
-	long cpu_num = 0L;
-	long gpu_num = 0L;
-	long package_num = 0L;
-	int info_size;
-	int i;
+	int i,k;
 	int offset = 0;
-
-	char package_buffer[60];
-        char cpu_buffer[60];
-        char gpu_buffer[60];
+	k=0;
 
 	for (i=0; i< num_pkg; i++){
-	 // char package_buffer[60];
-	 // char cpu_buffer[60];
-	 // char gpu_buffer[60];
 	  
-	  // read value for PKG domain
-	  result = read_msr(fd[i], MSR_PKG_ENERGY_STATUS);	
-	  package[i] = (double) result * rapl_units.energy;
-	  printf("\t msr_pkg_energy_status: %lf \n", package[i]);
-	 
-
-	  result = 0.0;
-	  //read value for PP0 domain
+	  //read value for MSR PP0 domain
 	  result = read_msr(fd[i], MSR_PP0_ENERGY_STATUS);
 	  pp0[i] = (double) result * rapl_units.energy;
-	  printf("\t msr_pp0_energy_status: %lf \n", pp0[i]);
-	  
-	  sprintf(package_buffer, "%f", package[i]);
-	  sprintf(cpu_buffer, "%f", pp0[i]);
+	  //printf("\t msr_pp0_energy_status: %lf \n", pp0[i]);  
+	  energy_val[k] = pp0[i];
+	  k++;
 
-	  package_num = strlen(package_buffer);
-	  cpu_num = strlen(cpu_buffer);
-	  printf("\t Number of bits [package_num: %ld] \t [cpu_num: %ld] \n", package_num, cpu_num);	
-
-	  if(i==0){
-	    info_size = num_pkg * (cpu_num + package_num + 1);
-	    energy_values = (char*)malloc(info_size);
-	  }
-
-	 /* printf("\n \t Printing Energy Estimation Values: ");
-	   // copy the energy estimation from cpu
-	   memcpy(energy_values + offset, &cpu_buffer, cpu_num);
-	   // add separator to string
-	   energy_values[offset + cpu_num]= '#';
-	   // copy the energy estimation from the socket
-	   memcpy(energy_values + offset + cpu_num + 1, &package_buffer, package_num);
-	  
-	   energy_info = (*env)->NewStringUTF(env,energy_values);
-	   free(energy_values);
-	*/
-
-	}	
-
-	 printf("\n \t Printing Energy Estimation Values: ");
-         // copy the energy estimation from cpu
-         memcpy(energy_values + offset, &cpu_buffer, cpu_num);
-         // add separator to string
-         energy_values[offset + cpu_num]= '#';
-         // copy the energy estimation from the socket
-         memcpy(energy_values + offset + cpu_num + 1, &package_buffer, package_num);
-
-         energy_info = (*env)->NewStringUTF(env,energy_values);
-         free(energy_values);
+	  //depending on the cpu model some MSR are available
+	  switch(cpu_model){
+	      
+	   case SANDYBRIDGE_EP:
+	      	result = 0.0;
+              	//read value for MSR DRAM domain
+     	      	result = read_msr(fd[i], MSR_DRAM_ENERGY_STATUS);
+              	dram[i] = (double)result*rapl_units.energy;
+              	//printf("\t msr_dram_energy_status: %lf \n", dram[i]);
+		energy_val[k] = dram[i];	      	
+		k++;
 	
-	return energy_info;
+		pp1[i] = 0.0; energy_val[k]= 0.0; k++;
+		break;
+
+	   case IVYBRIDGE: 
+	   case SANDYBRIDGE:
+		result = 0.0;	
+		// read value for MSR PP1 domain
+          	result = read_msr(fd[i], MSR_PP1_ENERGY_STATUS);
+          	pp1[i] = (double) result * rapl_units.energy;
+          	//printf("\t msr_pp1_energy_status: %lf \n", pp1[i]);
+		energy_val[k] = pp1[i];	
+		k++;
+
+		dram[i] = 0.0; energy_val[k] = 0.0; k++;
+		break;
+
+	  }
+ 
+	  // read value for PKG domain
+          result = read_msr(fd[i], MSR_PKG_ENERGY_STATUS);
+          package[i] = (double) result * rapl_units.energy;
+          //printf("\t msr_pkg_energy_status: %lf \n", package[i]);
+   	  energy_val[k] = package[i];
+	  k++;
+	
+	 //TODO: fix indexx for dram depending on architecture could be 1 or 2
+	 //printf("\n \t Printing Energy Estimation Values:\n ");
+	 //printf("\t\t [package_num: %g] \n\t\t [cpu_num: %g] \n\t\t [gpu_num: %g] \n\t\t [dram_num: %g] \n", energy_val[3],energy_val[0], energy_val[1], energy_val[2]); 	
+
+	jdoubleArray jEnergyArray = (*env)->NewDoubleArray(env,num_pkg*4);
+        (*env)->SetDoubleArrayRegion(env,jEnergyArray,0,num_pkg*4,energy_val);
+
+	return jEnergyArray;
+     }
 }
 

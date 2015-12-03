@@ -14,12 +14,29 @@ uint64_t num_pkg_thread = 0;
 uint64_t num_pkg_core = 0;
 uint64_t num_pkg = 0;
 
+/*read MSR given by msrId*/
+uint64_t read_msr(int fd, uint64_t msrId) {
+
+  uint64_t data = 0;
+
+  if ( pread(fd, &data, sizeof data, msrId) != sizeof data ) {
+	//data = -1;
+        printf("pread error for %" PRIu64 " MSR!\n",msrId);
+  }
+
+  return data;
+}
+
+/*get cpu architecture model*/
 void get_cpu_model(void){
     uint32_t eax = 0x01;
     CPUID;
     cpu_model = (((eax>>16)&0xFU)<<4) + ((eax>>4)&0xFU);
 }
 
+
+/*read cpuid opcode (processor supplementary instruction for the x86 architecture)
+information to identify details about the processor*/
 void cpuid(uint32_t eax_in, uint32_t ecx_in, cpuid_info_t *ci) {
       asm (
 	#if defined(__LP64__)           /* 64-bit architecture */
