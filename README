@@ -2,8 +2,20 @@
 ## Author: Irene Manotas
 ######
 
-# Library to access RAPL registers: rapl_lib.c
-# Class to access RAPL from Java: util.EnergyMetric.java
-# Credit for most of the MSR manipulation functions in C is for the creators of jRAPL.
+This repository contains the following files:
+
+- Library that allow accessing RAPL registers: rapl_lib.c rapl_utils
+- Class to obtain RAPL MSRs information from Java: util.EnergyMetric
+
+Some information about RAPL and rapl_utils:
+- Provide access to the energy status and units MSRs of RAPL which include (MSR_RAPL_POWER_UNIT,
+MSR_PKG_ENERGY_STATUS, MSR_PP0_ENERGY_STATUS, MSR_PP1_ENERGY_STATUS, MSR_DRAM_ENERGY_STATUS).
+- RAPL domains are: PKG (socket), PP0 (Core power plane), PP1 (uncore/graphics power plane) and DRAM
+- PP1 domain only available in some clients; DRAM domain available only in server.
+- To access RAPL the following conditions should be met: 1) /dev/cpu/?/msr driver must be enabled and permissions set to allow read access; 2) Support for perf_event_open(), and to have /proc/sys/kernel/perf_event_paranoid < 1.
+
+For more information about RAPL MSRs: http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3b-part-2-manual.pdf 
+
+# Credit for some of the MSR manipulation functions in C to the creators of jRAPL.
 # jRAPL is available at: https://github.com/kliu20/jRAPL 
 
