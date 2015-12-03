@@ -86,6 +86,10 @@ JNIEXPORT jint JNICALL Java_util_EnergyMetric_profileInit(JNIEnv *env, jclass cl
 	case IVYBRIDGE:
 	  printf("Ivybridge cpu model\n");
 	  break;
+
+	default:
+	  printf("Unsupported CPU model\n");
+	  break;
   }
 
  // printf("socket number is: %" PRIu64 "\n",num_pkg); 
@@ -172,6 +176,21 @@ JNIEXPORT jdoubleArray JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv
 		break;
 
 	  }
+
+	  /*
+		//only available on *Bridge_EP
+		if(cpu_model==SANDYBRIDGE_EP || cpu_model==IVYBRIDGE_EP){
+		  result = 0.0;
+		  result=read_msr(fd[i], MSR_PKG_PERF_STATUS);
+		  double pkg_throttled_time=(double)result*rapl_units.time;
+		  printf("Accumulated Package Throttled Time : %.6fs\n",pkg_throttled_time);
+
+		  result = 0.0;
+		  result=read_msr(fd[i],MSR_PP0_PERF_STATUS);
+		  double pp0_throttled_time=(double)result*rapl_untis.time;
+		  printf("PowerPlane0 (core) Accumulated Throttled Time "": %.6fs\n",pp0_throttled_time);
+		}
+	  */
  
 	  // read value for PKG domain
           result = read_msr(fd[i], MSR_PKG_ENERGY_STATUS);

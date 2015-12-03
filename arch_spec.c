@@ -117,6 +117,16 @@ void get_msr_units(rapl_msr_unit *unit_obj, uint64_t data) {
 	uint64_t power_bit = extractBitField(data, 4, 0);
         uint64_t energy_bit = extractBitField(data, 5, 8);
         uint64_t time_bit = extractBitField(data, 4, 16);
+	
+	//TODO: if supporting Haswell EP: the DRAM units differ from the CPU units
+	/*
+	  if(cpu_model==HASWELL_EP) {
+	    //add dram field to unit_obj
+	    unit_obj->dram = (1.0/_2POW(16));    
+	  }else{
+	    unit_obj->dram = (1.0 / _2POW(energy_bit));
+	  }
+	*/
 
 	printf("RAPL MSR UNITS:\n");
 	printf("power_bit: %" PRIu64 "\t energy_bit: %" PRIu64 "\t time_bit :%" PRIu64 "\n", power_bit, energy_bit, time_bit);
