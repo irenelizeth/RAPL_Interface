@@ -2,8 +2,30 @@
 ## Author: Irene Manotas
 ######
 
-# Library to access RAPL registers: rapl_lib.c
-# Class to access RAPL from Java: util.EnergyMetric.java
-# Credit for most of the MSR manipulation functions in C is for the creators of jRAPL.
+This repository contains the following files:
+
+- Library that allow accessing RAPL registers: rapl_lib.c rapl_utils
+- Class to obtain RAPL MSRs information from Java: util.EnergyMetric
+
+Some information about RAPL and rapl_utils:
+- RAPL allows to query internal power meters that are exposed through MSRs.
+- Power meter registers in RAPL do not trigger an interruption on overflow, as hardware performance counters do.
+- rapl_utils Provide access to the energy status and units provided by MSRs of RAPL which include (MSR_RAPL_POWER_UNIT, MSR_PKG_ENERGY_STATUS, MSR_PP0_ENERGY_STATUS, MSR_PP1_ENERGY_STATUS, MSR_DRAM_ENERGY_STATUS).
+- rapl_utils access RAPL MSR without perf tool. 
+
+- RAPL domains are: PKG (socket), PP0 (Core power plane), PP1 (uncore/graphics power plane) and DRAM
+- PP1 domain only available in some clients; DRAM domain available only in server.
+- The RAPL counters are available on Intel processors: SandyBridge, IvyBridge, Haswell. The server processors (e.g., SandyBridge-EP) add a third counter to measure DRAM power consumption.
+- To access RAPL the following conditions should be met: 1) Intel supported cpu model (SandyBridge, IvyBridge, etc); 2) /dev/cpu/?/msr driver must be enabled and permissions set to allow read access.
+- If using perf tool then support for perf_event_open() should be enabled, and to have /proc/sys/kernel/perf_event_paranoid < 1.
+
+For more information about RAPL MSRs, read the following references: 
+
+- RAPL domains, Intel Developer Zone: http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-3b-part-2-manual.pdf 
+- RAPL in general: http://blog.factsmind.org/2014/12/references-intel-rapl.html
+- Performance Monitor Unit for RAPL: http://lwn.net/Articles/572875/
+
+# Credit for some of the MSR manipulation functions in C to the creators of rapl_read.c and jRAPL.
+# rapl_read.c is available at: http://web.eece.maine.edu/~vweaver/projects/rapl/rapl-read.c
 # jRAPL is available at: https://github.com/kliu20/jRAPL 
 
