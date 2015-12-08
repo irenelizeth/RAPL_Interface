@@ -121,6 +121,7 @@ JNIEXPORT jint JNICALL Java_util_EnergyMetric_profileInit(JNIEnv *env, jclass cl
 current architecture (e.g., PKG, PP0, PP1) */
 JNIEXPORT jdoubleArray JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv *env, jclass class){
 
+	int verbose = 0; // 1, printout information
 	double result = 0.0;
 	jdouble energy_val[num_pkg*4];
 
@@ -139,7 +140,8 @@ JNIEXPORT jdoubleArray JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv
 	  //read value for MSR PP0 domain
 	  result = read_msr(fd[i], MSR_PP0_ENERGY_STATUS);
 	  pp0[i] = (double) result * rapl_units.energy;
-	  //printf("\t msr_pp0_energy_status: %lf \n", pp0[i]);  
+	  if(verbose==1)
+	  	printf("\t msr_pp0_energy_status: %lf \n", pp0[i]);  
 	  energy_val[k] = pp0[i];
 	  k++;
 
@@ -151,7 +153,8 @@ JNIEXPORT jdoubleArray JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv
               	//read value for MSR DRAM domain
      	      	result = read_msr(fd[i], MSR_DRAM_ENERGY_STATUS);
               	dram[i] = (double)result*rapl_units.energy;
-              	//printf("\t msr_dram_energy_status: %lf \n", dram[i]);
+              	if(verbose==1)
+			printf("\t msr_dram_energy_status: %lf \n", dram[i]);
 		energy_val[k] = dram[i];	      	
 		k++;
 	
@@ -164,7 +167,8 @@ JNIEXPORT jdoubleArray JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv
 		// read value for MSR PP1 domain
           	result = read_msr(fd[i], MSR_PP1_ENERGY_STATUS);
           	pp1[i] = (double) result * rapl_units.energy;
-          	//printf("\t msr_pp1_energy_status: %lf \n", pp1[i]);
+          	if(verbose==1)
+			printf("\t msr_pp1_energy_status: %lf \n", pp1[i]);
 		energy_val[k] = pp1[i];	
 		k++;
 
@@ -176,7 +180,8 @@ JNIEXPORT jdoubleArray JNICALL Java_util_EnergyMetric_getRAPLEnergyStatus(JNIEnv
 	  // read value for PKG domain
           result = read_msr(fd[i], MSR_PKG_ENERGY_STATUS);
           package[i] = (double) result * rapl_units.energy;
-          //printf("\t msr_pkg_energy_status: %lf \n", package[i]);
+          if(verbose==1)
+		printf("\t msr_pkg_energy_status: %lf \n", package[i]);
    	  energy_val[k] = package[i];
 	  k++;
 	

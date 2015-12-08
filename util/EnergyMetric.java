@@ -50,19 +50,6 @@ public class EnergyMetric {
 	  //String list[] = eStatus.split("#");
 
 	  System.out.println("energy Status: pp0->" + eStatus[0]+"; pp1-> "+eStatus[1]+"; pkg->"+ eStatus[3]+"\n");	
-	  /*System.out.println("energy Status: pp0->" + list[0]+"; pp1-> "+list[1]+"; pkg->"+list[2]+"\n");	
-	
-	  float values[] = new float[list.length];;
-          int index;
-          for (int k=0; k < list.length; k++){
-
-            index = list[k].indexOf("."); 
-	    System.out.println("value index: "+ k + "; dot separator index: "+index);
-	    values[k] = index > -1 ? (Float.valueOf(list[k].substring(0,index+3))).floatValue() : 0;
-            //(Float.valueOf((list[k].substring(0,index+3))).floatValue();
-	    System.out.println(values[k]);
-          }*/
-	
 
 	}
 
