@@ -45,8 +45,8 @@ public class EnergyMetric {
 	  //String eStatus = getRAPLEnergyStatus();
 	  double eStatus[] = getRAPLEnergyStatus();
 	  //int cpu_model = getCPUModel();
-	  // if Sandybridge_ep --> dram is third value
-	  // if Sandybridge/ivybridge --> pp1/gpu is third value
+	  // if Sandybridge_ep --> dram is second value
+	  // if Sandybridge/ivybridge --> pp1/gpu is second value
 	  //String list[] = eStatus.split("#");
 
 	  System.out.println("energy Status: pp0->" + eStatus[0]+"; pp1-> "+eStatus[1]+"; pkg->"+ eStatus[3]+"\n");	
